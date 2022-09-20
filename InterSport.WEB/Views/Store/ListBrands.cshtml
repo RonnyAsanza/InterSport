@@ -1,0 +1,25 @@
+﻿@using InterSport.Domain.Entities
+@model List<Brand>
+@{
+    Layout = null;
+}
+
+<div class="card-body">
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="inpBrandName" value="0" id="inpBrandId" checked="checked" />
+        <label class="form-check-label">All</label>
+    </div>
+    @foreach (var item in Model)
+    {
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="inpBrandName" value="@item.BrandId" id="inpBrandId" />
+            <label class="form-check-label">@item.Description</label>
+        </div>
+    }
+</div>
+
+<script>
+
+
+
+</script>

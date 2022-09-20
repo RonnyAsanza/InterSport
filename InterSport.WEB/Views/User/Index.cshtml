@@ -1,0 +1,219 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ol class="breadcrumb mb-4 mt-2">
+    <li class="breadcrumb-item"><a href="index.html">ADMINISTRATION</a></li>
+    <li class="breadcrumb-item active">Users</li>
+</ol>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users me-1"></i> List Users
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-success" onclick="openModal(null)">New User</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <div id="divListUsers">
+
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="FormModal" aria-hidden="true" data-bs-backdrop="static">
+    @*<div id="divOpenModal">
+
+        </div>*@
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input id="idUser" type="hidden" value="0" />
+
+                <div class="row  g-2">
+                    <div class="col-sm-4">
+                        <label for="idFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="idFirstName">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="idLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="idLastName">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="idPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="idPhone">
+                    </div>
+                </div>
+
+                <div class="row g2">
+                    <div class="col-sm-4">
+                        <label for="idDirection" class="form-label">Direction</label>
+                        <input type="text" class="form-control" id="idDirection">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="idEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="idEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="idPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="idPassword" />
+                    </div>
+                </div>
+
+                <div class="row g2">
+                    <div class="col-sm-6">
+                        <label for="idRestorePassword" class="form-label">Restore Password</label>
+                        <select id="idRestorePassword" class="form-select">
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="idIsActive" class="form-label">Is Active</label>
+                        <select id="idIsActive" class="form-select">
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts
+    {
+    <script>
+
+        var tabledata;
+        var rowSelect;
+
+        $(document).ready(function () {
+            ListUsers();
+        });
+
+        function ListUsers() {
+            $.ajax({
+                url: '@Url.Action("GetListUsers", "User")',
+                type: "GET",
+                success: function (data) {
+                    $("#divListUsers").html(data);
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        }
+
+        function openModal(user) {
+            $("#idFirstName").val("");
+            $("#idLastName").val("");
+            $("#idPhone").val("");
+            $("#idDirection").val("");
+            $("#idEmail").val("");
+            $("#idPassword").val("");
+            $("#idRestorePassword").val(1);
+            $("#idIsActive").val(1);
+
+            if (user != null) {
+                $("#idUser").val(user.UserId);
+                $("#idFirstName").val(user.FirstName);
+                $("#idLastName").val(user.LastName);
+                $("#idPhone").val(user.Phone);
+                $("#idDirection").val(user.Direction);
+                $("#idEmail").val(user.Email);
+                $("#idPassword").val(user.Password);
+                $("#idRestorePassword").val(user.RestorePassword == true ? 1 : 0);
+                $("#idIsActive").val(user.IsActive == true ? 1 : 0);
+            }
+            $("#FormModal").modal("show");
+        }
+
+        function OnDeleteUser(userId) {
+            swal({
+                title: "Are you sure?",
+                text: "¿WANT TO DELETE?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-primary",
+                confirmButtonText: "YES",
+                cancelButtonText: "No",
+                closeOnConfirm: true
+            },
+                function () {
+
+                    jQuery.ajax({
+                        url: '@Url.Action("DeleteUser", "User")',
+                        type: "POST",
+                        data: { userId: userId },
+                        success: function (data) {
+                            $("#divListUsers").html(data);
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                });
+        }
+
+        function Save() {
+            var user = {
+                UserId : $("#idUser").val(),
+                FirstName: $("#idFirstName").val(),
+                LastName: $("#idLastName").val(),
+                Phone: $("#idPhone").val(),
+                Direction: $("#idDirection").val(),
+                Email: $("#idEmail").val(),
+                Password: $("#idPassword").val(),
+                IsActive: $("#idIsActive").val() == 1 ? true : false,
+                RestorePassword: $("#idRestorePassword").val() == 1 ? true : false
+            }
+            $.ajax({
+                url: '@Url.Action("SaveUser", "User")',
+                type: "POST",
+                data: { user: user},
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide")
+                    $("#divListUsers").html(data);
+                    $("#FormModal").modal("hide");
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide")
+                    $("#messageError").text("Mistake Ajax");
+                    $("#messageError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Loading...",
+                        size: 14
+                    })
+                }
+            });
+        }
+    </script>
+}
+

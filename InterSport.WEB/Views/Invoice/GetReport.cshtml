@@ -1,0 +1,73 @@
+﻿@using InterSport.Domain.Models
+@model SalesReport
+
+
+<div class="col-xl-3 col-md-6">
+    <div class="card bg-warning text-white mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h6>Quantity Sales</h6>
+                    <h6 id="totalSales">0</h6>
+                </div>
+                <div class="col-sm-3">
+                    <i class="fas fa-shopping-bag fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-3 col-md-6">
+    <div class="card bg-success text-white mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h6>Quantity Clients</h6>
+                    <h6 id="totalClients">0</h6>
+                </div>
+                <div class="col-sm-3">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-3 col-md-6">
+    <div class="card bg-secondary text-white mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h6>Quantity Products</h6>
+                    <h6 id="totalProducts">0</h6>
+                </div>
+                <div class="col-sm-3">
+                    <i class="fas fa-boxes fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var report = @Html.Raw(Json.Encode(Model));
+
+    var x = 0;
+    for (var i = 0; i < report.NumProducts.length; i++)
+    {
+        x += report.NumProducts[i].NumSales;
+    }
+
+    $("#totalSales").text(report.NumSales);
+    $("#totalClients").text(report.NumCustomers.length);
+    $("#totalProducts").text(x);
+
+    //let sum = 0;
+    //var y = report.NumProducts.NumSales.forEach(item => { sum += item; });
+    //var y = $.each(report.NumProducts[0].NumSales, function () { sum += this || 0; });Ç
+    //console.log(y);
+
+</script>

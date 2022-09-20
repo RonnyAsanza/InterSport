@@ -1,0 +1,25 @@
+﻿@using InterSport.Domain.Models
+@model List<ProductViewModel>
+@foreach (var item in Model)
+{
+    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center m-1">
+        <div class="card h-100 m-auto" style="width:250px">
+            <img src="data:image/@item.Extension;base64,@item.Base64" class="card-img-top card h-100" alt="Card image">
+            <div class="card-body">
+                <h5 class="card-text text-center">
+                    @item.Name
+                </h5>
+                <h5 class="text-center">
+                    $ @item.Price USD
+                </h5>
+            </div>
+            <div class="card-footer p-2 pt-0 border-top-0 bg-transparent">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-success mt-auto" onclick="OnAddProduct">Add</button>
+                    <a class="btn btn-dark mt-auto">Show</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

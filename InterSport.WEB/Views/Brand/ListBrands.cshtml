@@ -1,0 +1,44 @@
+﻿@using InterSport.Domain.Entities
+@model List<Brand>
+
+
+<table id="tblBrand" class="display cell-border" style="width: 100%">
+    <thead>
+        <tr id="idTr">
+            <th class="col-1">ID</th>
+            <th class="col-8">Description</th>
+            <th class="col-1">IsActive</th>
+            <th class="col-1">Edit</th>
+            <th class="col-1">Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.BrandId</td>
+                <td>@item.Description</td>
+                <td>@item.IsActive</td>
+                <td>
+                    <button class='btn btn-primary col-12' onclick='OnEditBrand("@item.BrandId")'>Edit</button>
+                </td>
+                <td>
+                    <button class='btn btn-danger col-12' onclick='OnDeleteBrand("@item.BrandId")'>Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+
+        var tabla = $("#tblBrand").DataTable({
+            "responsive": true
+        });
+        function OnEditBrand(brandId) {
+            var brands = @Html.Raw(Json.Encode(Model));
+            var brand = brands.find(x => x.BrandId == brandId);
+            openModal(brand);
+        }
+
+</script>

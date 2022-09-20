@@ -1,0 +1,57 @@
+﻿@using InterSport.Domain.Entities
+@model List<User>
+
+<table id="tableUser" class="display cell-border" style="width: 100%">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Direction</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Restore Password</th>
+            <th>Is Active</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.UserId</td>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.Phone</td>
+                <td>@item.Direction</td>
+                <td>@item.Email</td>
+                <td>@item.Password</td>
+                <td>@item.RestorePassword</td>
+                <td>@item.IsActive</td>
+                <td>
+                    <button class='btn btn-primary col-12' onclick='OnEditUser("@item.UserId")'>Edit</button>
+                </td>
+                <td>
+                    <button class='btn btn-danger col-12' onclick='OnDeleteUser("@item.UserId")'>Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<script>
+
+    var tabla = $("#tableUser").DataTable({
+    "responsive": true
+    });
+
+    function OnEditUser(userId) {
+        var users = @Html.Raw(Json.Encode(Model));
+        var user = users.find(x => x.UserId == userId);
+        openModal(user);
+    }
+
+</script>

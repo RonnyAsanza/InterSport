@@ -1,0 +1,303 @@
+﻿@using InterSport.Domain.Entities
+@model List<Brand>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Maintenance</a></li>
+    <li class="breadcrumb-item active">Category</li>
+</ol>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users me-1"></i> List Products
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-success" onclick="openModal(null)">New Product</button>
+            </div>
+        </div>
+        <hr />
+        <div id="divProduct">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="FormModal" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input id="productId" hidden type="text" value="0" />
+
+                <form id="formModal" class="row">
+                    <div class="col-sm-3">
+                        <div class="mb-2">
+                            <img id="imgProduct" height="197" width="200" class="border rounded mx-auto d-block img-fluid" />
+                        </div>
+                        <div class="mb-2">
+                            <input class="form-control" type="file" id="fileProduct" accept="image/png, image/jpg, image/jpeg" onchange="showImage(this)" />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" id="txtName" name="Name" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea type="text" class="form-control" id="txtDescription" name="Description" style="height:125px;resize:none"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <select id="selBrands" class="form-select">
+                                @foreach (var item in Model)
+                                {
+                                    <option value="@item.BrandId">@item.Description</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select id="selCategories" class="form-select">
+                                @foreach (var item in ViewBag.cartegories)
+                                {
+                                    <option value="@item.CategoryId">@item.Description</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="text" class="form-control" id="txtPrice" name="Price" autocomplete="on" />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="txtStock" name="Stock" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Active</label>
+                            <select id="txtActive" class="form-select">
+                                <option value="1">True</option>
+                                <option value="0">False</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+
+                <!--message alert-->
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div id="messageError" class="alert alert-danger" role="alert">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="Save()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            GetListProducts();
+        });
+        function GetListProducts() {
+            $.ajax({
+                url: '@Url.Action("GetViewListProduts", "Product")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#divProduct").html(data);
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    //ocultar loading
+                }
+            });
+        }
+
+        function showImage(input) {
+            if (input.files) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#imgProduct").attr("src", e.target.result).width(200).height(197)
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        jQuery.validator.addMethod("priceDecimal", function (value, element) {
+            return this.optional(element) || /^\d{0,4}(\.\d{0,2})?$/i.test(value);
+        }, "Format Incorrect ##.##");
+
+        $("#formModal").validate({
+            rules: {
+                Name: {
+                    required: true
+                },
+                Description: {
+                    required: true
+                },
+                Price: {
+                    required: true,
+                    priceDecimal: true
+                },
+                Stock: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                Name: "Name required",
+                Description: "Description required",
+                Price: { required: "Price required ", priceDecimal: "format incorrect ##.##" },
+                Stock: { required: "Stock required", priceDecimal: "Only Numbers" }
+            },
+            errorElement: "div",
+            errorLabelContainer: ".alert-danger"
+        })
+
+        function openModal(product) {
+            $("#productId").val(0);
+            $("#imgProduct").removeAttr("src");
+            $("#fileProduct").val("");
+            $("#txtName").val("");
+            $("#txtDescription").val("");
+            $("#selBrands").val($("#selBrands option:first").val());
+            $("#selCategories").val($("#selCategories option:first").val());
+            $("#txtPrice").val("");
+            $("#txtStock").val("");
+            $("#txtActive").val(1);
+            $("#messageError").hide();
+            console.log(product);
+            if (product != null) {
+                $("#productId").val(product.ProductId);
+                $("#txtName").val(product.Name);
+                $("#txtDescription").val(product.Description);
+                $("#selBrands").val(product.BrandId);
+                $("#selCategories").val(product.CategoryId);
+                $("#txtPrice").val(product.Price);
+                $("#txtStock").val(product.Stock);
+                $("#txtActive").val(product.IsActive == true ? 1 : 0);
+
+                jQuery.ajax({
+                    url: '@Url.Action("ImageProduct", "Product")',
+                    type: "POST",
+                    data: JSON.stringify({ imagePath: product.ImagePath, imageName: product.ImageName }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $("#imgProduct").LoadingOverlay("hide");
+                        $("#imgProduct").attr({ "src": "data:image/" + data.extension + ";base64," + data.txtBase64 })
+                    },
+                    error: function (error) {
+                        $("#imgProduct").LoadingOverlay("hide");
+                        $("#messageError").show();
+                        $("#messageError").text("Error in path the image");
+                    },
+                    beforeSend: function () {
+                        $("#imgProduct").LoadingOverlay("show")
+                    },
+                });
+            }
+            $("#formModal").modal("show");
+
+        }
+        function OnDeleteProduct(productId) {
+            swal({
+                title: "Are you sure?",
+                text: "¿WANT TO DELETE?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-primary",
+                confirmButtonText: "YES",
+                cancelButtonText: "No",
+                closeOnConfirm: true
+            },
+                function () {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DeleteProduct", "Product")',
+                        data: { userId: userId },
+                        success: function (data) {
+
+                        },
+                    });
+                });
+        }
+
+        function Save() {
+
+            //if (!$("#formModal").valid()) {
+            //    return;
+            //}
+            var imageSelect = $("#fileProduct")[0].files[0];
+            var Product = {
+                ProductId: $("#productId").val(),
+                Name: $("#txtName").val(),
+                Description: $("#txtDescription").val(),
+                BrandId: $("#selBrands option:selected").val(),
+                CategoryId: $("#selCategories option:selected").val(),
+                Price: $("#txtPrice").val(),
+                Stock: $("#txtStock").val(),
+                IsActive: $("#txtActive").val() == 1 ? true: false
+            }
+
+            var request = new FormData();
+            request.append("productString", JSON.stringify(Product))
+            request.append("fileImage", imageSelect)
+
+
+            jQuery.ajax({
+                url: '@Url.Action("SaveProduct", "Product")',
+                type: "POST",
+                data: request,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    $("#divProduct").html(data);
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#formModal").modal("hide");
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide")
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Loading...",
+                        size: 14
+                    })
+                }
+            });
+        }
+
+
+
+    </script>
+}

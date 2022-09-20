@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="mt-4">Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">Dashboard</li>
+</ol>
+
+<div class="row" id="divReport">
+
+
+</div>
+
+<div class="card mb-4">
+
+    <div class="card-header">
+        <i class="fas fa-tags me-1"></i>
+        History Sales
+    </div>
+
+    <div class="card-body">
+        <form>
+            <div class="row align-items-end">
+
+                <div class="col-sm-2">
+                    <div class="mb-2">
+                        <label class="form-label">Start Date: </label>
+                        <input class="form-control" type="text" id="txtStartDate" name="StartDate" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="mb-2">
+                        <label class="form-label">End Date: </label>
+                        <input class="form-control" type="text" id="txtEndDate" name="EndDate" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="mb-2">
+                        <label class="form-label">Transaction: </label>
+                        <input class="form-control" type="text" id="txtTransaction" name="Transaction" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-primary" id="btnSearch" type="button" onclick='OnSearch()'><i class="fas fa-search"></i> Search</button>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-success" id="btnExport" type="button" onclick='OnExportInvoice(null)'><i class="fas fa-file-excel"></i> Export All </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <hr />
+
+        <div id="divInvoices">
+
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $("#txtStartDate").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate', new Date())
+            $("#txtEndDate").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate', new Date())
+
+            GetReport();
+
+             Url = '@Url.Action("GetInvoices","Invoice")' +
+                "?startDate=" + $("#txtStartDate").val() +
+                "&endDate=" + $("#txtEndDate").val() +
+                "&transactionId=" + $("#txtTransaction").val()
+
+                $.ajax({
+                    url: Url,
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $("#divInvoices").html(data);
+                    },
+                    error: function () {
+                        console.log("error");
+                    },
+                    complete: function (error) {
+                        //ocultar loading
+                    }
+
+                })
+
+
+        });
+
+        function GetReport() {
+            $.ajax({
+                url: '@Url.Action("GetReport", "Invoice")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#divReport").html(data);
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    //ocultar loading
+                }
+            });
+        }
+
+        function OnSearch() {
+                var newUrl = '@Url.Action("GetInvoices", "Invoice")' +
+                "?startDate=" + $("#txtStartDate").val() +
+                "&endDate=" + $("#txtEndDate").val() +
+                "&transaction=" + $("#txtTransaction").val()
+
+            $.ajax({
+                url: newUrl,
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#divInvoices").html(data);
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    //ocultar loading
+                }
+            });
+        }
+
+        function OnExportInvoice(id) {
+            if (id != null) {
+                var newUrl = '@Url.Action("ExportDetailInvoice", "Invoice")' +
+                    "?startDate=" + $("#txtStartDate").val() +
+                    "&endDate=" + $("#txtEndDate").val() +
+                    "&transaction=" + id;
+                window.open(newUrl, '_blank').focus();
+            }
+            else {
+                var newUrl = '@Url.Action("ExportInvoice", "Invoice")' +
+                    "?startDate=" + $("#txtStartDate").val() +
+                    "&endDate=" + $("#txtEndDate").val() +
+                    "&transaction=" + $("#txtTransaction").val();
+                window.open(newUrl, '_blank').focus();
+            }
+        }
+
+
+    </script>
+
+}

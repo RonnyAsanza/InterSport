@@ -1,0 +1,213 @@
+﻿@{
+
+    Layout = null;
+}
+<style>
+    .flex {
+        display: flex;
+    }
+
+    .item-rigth {
+        margin-left: auto;
+    }
+</style>
+
+<html>
+<body class="d-flex flex-column min-vh-100">
+    <header class="bg-dark py-5">
+        <div class="container px-2 px-lg-5 my-5 text-center text-white">
+            <h1 class="display-4 fw-bolder">Shop in style</h1>
+            <p class="lead fw-normal text-white-10 mb-0">Top products</p>
+        </div>
+        @Styles.Render("~/Content/css")
+    </header>
+    <div class="flex m-3">
+        <div class="item-rigth">
+            <button class="btn btn-outline-dark mx-auto" aria-current="page" onclick="OnPayment"><i class="fas fa-sign-out-alt me-1"></i>Payment</button>
+        </div>
+    </div>
+    <section>
+        <div class="container-fluid px-5 my-5">
+            <div class="row">
+                <div class="col-sm-3">
+
+                    <div class="row mb-3">
+                        <div class="col-sm-12">
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    Category
+                                </div>
+                                <div id="divListCategories" class="card-body">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-12">
+                            <div class="card-header bg-dark text-white">
+                                Brand
+                            </div>
+                            <div id="divListBrands" class="card-body">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-12">
+                            <div class="d-grid gap-2">
+                                <button id="btnFilter" class="btn btn-outline-dark btn-block" type="button">
+                                    <i class="fas fa-filter"></i> Apply Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-9">
+                    <div id="divListProducts" class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/complement")
+        @Scripts.Render("~/bundles/bootstrap")
+
+    </section>
+
+</body>
+</html>
+
+
+<script>
+    $(document).ready(function () {
+        GetListCategories();
+    });
+
+    $(document).on("change", "input[name=inpCategoryName]", function () {
+        var categoryId = $("input[name=inpCategoryName]:checked").val();
+        GetListBrands(categoryId);
+    });
+
+        function GetListCategories() {
+            $.ajax({
+                url: '@Url.Action("GetListCategories", "Store")',
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    GetListBrands(0);
+                    $("#divListCategories").html(data);
+                    $("#divListCategories").LoadingOverlay("hide");
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    //ocultar loading
+                },
+                beforeSend: function () {
+                    $("#divListCategories").LoadingOverlay("show");
+                }
+            });
+        }
+
+      function GetListBrands(categoryId) {
+            $.ajax({
+                url: '@Url.Action("GetListBrands", "Store")',
+                type: "GET",
+                data: { categoryId: categoryId },
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#divListBrands").LoadingOverlay("hide");
+                    $("#divListBrands").html(data);
+                    ShowProducts();
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    //ocultar loading
+                },
+                beforeSend: function () {
+                    $("#divListBrands").LoadingOverlay("show");
+                }
+            });
+      }
+
+    $("#btnFilter").click(function OnClikFilter() {
+        ShowProducts();
+    })
+
+    function ShowProducts()
+    {
+        var categoryId = $("input[name=inpCategoryName]:checked").val();
+        var brandId = $("input[name=inpBrandName]:checked").val();
+        console.log(categoryId);
+        console.log(brandId);
+
+         $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetFilteredProducts", "Store")",
+                data: { categoryId: categoryId, brandId: brandId },
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#divListProducts").html("");
+                    $("#divListProducts").LoadingOverlay("hide");
+                    $("#divListProducts").html(response);
+                },
+                beforeSend: function () {
+                    $("#divListProducts").LoadingOverlay("show");
+                }
+         })
+    }
+
+    function OnAddProduct(productId)
+    {
+         $.ajax({
+                url: '@Url.Action("AddProduct", "Store")',
+                type: "GET",
+                data: { productId, productId },
+                contentType: "application/json; charset=utf-8",
+                success: function (stock) {
+
+                    if (stock > 0) {
+                        swal({
+                            title: "Added",
+                            text: "Payment",
+                            type: "success",
+                            showCancelButton: true,
+                            confirmButtonText: "yes",
+                            confirmButtonText: "no",
+                            closeOnConfirm: true
+
+                        }, function(){
+                            window.location.href = '@Url.Action("Payment","Store")'
+                        })
+                    }
+                    else
+                    {
+                        bootbox.alert({
+                            message: "out of stock",
+                            size: 'small'
+                        });
+                    }
+                },
+                error: function () {
+                    console.log("error");
+                },
+                complete: function (error) {
+                    $("#divListCategories").LoadingOverlay("hide");
+                },
+                beforeSend: function () {
+                    $("#divListCategories").LoadingOverlay("show");
+                }
+            });
+    }
+
+</script>

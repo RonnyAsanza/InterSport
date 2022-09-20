@@ -1,0 +1,50 @@
+﻿@using InterSport.Domain.Entities
+@model List<Invoice>
+
+<div class="row">
+    <div class="col-sm-12">
+        <table id="tblInvoices" class="display cell-border cell-border" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Transaction</th>
+                    <th>Edit</th>
+                    <th>Export</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    
+                    <tr>
+                        <td>@item.DateInvoice</td>
+                        <td>@item.CustomerId</td>
+                        <td>@item.Items</td>
+                        <td>@item.Total</td>
+                        <td>@item.Transaction</td>
+                        <td>
+                            <button class='btn btn-primary col-12' onclick='OnEditInvoices("@item.InvoiceId")'><i  class="fas fa-pen"></i> Edit</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-success col-12" onclick='OnExportInvoice("@item.InvoiceId")'><i class="fas fa-file-excel"></i> Export</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    @*var tb = @Html.Raw(Json.Encode(Model));*@
+
+    var tabla = $("#tblInvoices").DataTable({
+        "responsive": true,
+    });
+
+
+</script>
